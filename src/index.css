@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+    --color-brand: #0f172a;
+    /* Slate 900 for main brand color */
+    --color-brand-muted: #334155;
+    /* Slate 700 */
+    --color-accent: #3b82f6;
+    /* Blue 500 for primary actions */
+    --color-accent-hover: #2563eb;
+    /* Blue 600 */
+    --color-bg-main: #f1f5f9;
+    /* Slate 100 for app background */
+    --color-surface: #ffffff;
+    --color-border-subtle: #e2e8f0;
+    /* Slate 200 */
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    /* Slate 600 */
+
+    --color-status-active: #10b981;
+    /* Emerald 500 */
+    --color-status-warning: #f59e0b;
+    /* Amber 500 */
+    --color-status-offline: #ef4444;
+    /* Red 500 */
+}
+
+@layer base {
+    body {
+        @apply bg-slate-100 text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900;
+        margin: 0;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+}
+
+@layer utilities {
+    .corp-card {
+        @apply bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden;
+    }
+
+    .video-card {
+        @apply bg-slate-900 rounded-xl overflow-hidden shadow-lg border border-slate-800 relative transition-transform duration-200;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
