@@ -75,7 +75,7 @@ export const useProctorStore = create<ProctorState>((set, get) => ({
         }
     ],
     selectedCandidateId: null,
-    viewMode: 'both',
+    viewMode: 'front',
     currentPage: 1,
     focusedCandidateId: null,
 
