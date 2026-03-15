@@ -49,20 +49,22 @@ const AVATAR_COLORS = [
     'bg-amber-500', 'bg-cyan-500', 'bg-fuchsia-500', 'bg-indigo-500'
 ];
 
-const MOCK_CANDIDATES: Candidate[] = Array.from({ length: 20 }, (_, i) => ({
-    id: `C-${(i + 1).toString().padStart(3, '0')}`,
-    name: `Candidate ${i + 1}`,
-    status: i % 7 === 0 ? 'warning' : i % 11 === 0 ? 'disconnected' : 'active',
-    warnings: i % 7 === 0 ? Math.floor(Math.random() * 3) + 1 : 0,
-    avatarColor: AVATAR_COLORS[i % AVATAR_COLORS.length],
-    isSimulatingVideo: i % 11 !== 0,
-    hasFrontCam: i % 11 !== 0,
-    hasSideCam: i % 11 !== 0 && i % 5 !== 0, // Some disconnected side cams for realism
-}));
+const MOCK_CANDIDATES: Candidate[] = [
+    {
+        id: 'C-001',
+        name: 'Candidate 1',
+        status: 'active',
+        warnings: 0,
+        avatarColor: AVATAR_COLORS[0],
+        isSimulatingVideo: true,
+        hasFrontCam: true,
+        hasSideCam: true,
+    }
+];
 
 export const useProctorStore = create<ProctorState>((set, get) => ({
-    isAuthenticated: false,
-    proctorName: '',
+    isAuthenticated: true,
+    proctorName: 'Vimal',
     cameraEnabled: false,
     candidates: MOCK_CANDIDATES,
     messages: [
