@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import AgoraRTC, { IAgoraRTCClient, IRemoteVideoTrack } from 'agora-rtc-sdk-ng';
 import { AGORA_CONFIG } from '../Config/AgoraConfig';
 import { Monitor, Smartphone, VideoOff } from 'lucide-react';
+import { useProctorStore } from '../store/proctorStore';
 
 interface AgoraVideoPlayerProps {
     assessmentId: string;
@@ -37,12 +38,22 @@ export default function AgoraVideoPlayer({ assessmentId, candidateId, layout, vi
                     } else if (user.uid === 2) { // Mobile/Side
                         setSideTrack(remoteVideoTrack);
                     }
+                    // Update store camera status
+                    useProctorStore.getState().updateCandidateStatus(candidateId, { cameraOn: true });
                 }
             });
 
-            rtcClient.on('user-unpublished', (user) => {
+            rtcClient.on('user-unpublished', (user, mediaType) => {
                 if (user.uid === 1) setFrontTrack(null);
                 if (user.uid === 2) setSideTrack(null);
+                
+                // If both tracks are gone, set cameraOn to false
+                if (mediaType === 'video') {
+                    const isStillActive = (user.uid === 1 ? false : !!frontTrack) || (user.uid === 2 ? false : !!sideTrack);
+                    if (!isStillActive) {
+                        useProctorStore.getState().updateCandidateStatus(candidateId, { cameraOn: false });
+                    }
+                }
             });
 
             try {

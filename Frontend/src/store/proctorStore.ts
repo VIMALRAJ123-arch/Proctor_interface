@@ -1,18 +1,33 @@
 import { create } from 'zustand';
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:8000';
+
+export interface CandidateFlag {
+    timestamp: string;
+    type: string;
+    reason: string;
+}
 
 export interface Candidate {
-    id: string;
+    id: string; // This is email in our context
     name: string;
-    avatarColor: string;
+    reg_no: string;
+    email: string;
+    college: string;
+    department: string;
+    isOnline: boolean;
+    isJoined: boolean;
+    cameraOn: boolean;
+    flags: CandidateFlag[];
 }
 
 export interface ChatMessage {
     id: string;
-    sender: 'proctor' | string;
+    sender: 'proctor' | 'candidate';
     text: string;
-    timestamp: Date;
-    isBroadcast: boolean;
-    targetCandidateId?: string;
+    timestamp: string;
+    candidateId?: string;
 }
 
 interface ProctorState {
@@ -21,24 +36,24 @@ interface ProctorState {
     proctorEmail: string;
     assessmentId: string;
     candidates: Candidate[];
-    messages: ChatMessage[];
     focusedCandidateId: string | null;
     selectedCandidateId: string | null;
     proctorCameraEnabled: boolean;
+    messages: ChatMessage[];
+    pollingInterval: any | null;
 
+    setLoginData: (name: string, email: string, aId: string) => void;
     login: (assessmentId: string, passkey: string) => Promise<boolean>;
-    logout: () => void;
     fetchCandidates: () => Promise<void>;
-    sendMessage: (text: string, targetId?: string) => void;
+    fetchCandidateFlags: (email: string) => Promise<CandidateFlag[]>;
+    updateCandidateStatus: (email: string, status: Partial<Candidate>) => void;
     setFocusedCandidateId: (id: string | null) => void;
     setSelectedCandidateId: (id: string | null) => void;
     toggleProctorCamera: () => void;
+    sendMessage: (text: string, candidateId?: string) => void;
+    startPolling: () => void;
+    stopPolling: () => void;
 }
-
-const AVATAR_COLORS = [
-    'bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-rose-500',
-    'bg-amber-500', 'bg-cyan-500', 'bg-fuchsia-500', 'bg-indigo-500'
-];
 
 export const useProctorStore = create<ProctorState>((set, get) => ({
     isAuthenticated: false,
@@ -46,92 +61,138 @@ export const useProctorStore = create<ProctorState>((set, get) => ({
     proctorEmail: '',
     assessmentId: '',
     candidates: [],
-    messages: [
-        {
-            id: 'greeting',
-            sender: 'proctor',
-            text: 'System: Monitoring session initiated. Connection established securely.',
-            timestamp: new Date(),
-            isBroadcast: true,
-        }
-    ],
     focusedCandidateId: null,
     selectedCandidateId: null,
     proctorCameraEnabled: false,
+    messages: [],
+    pollingInterval: null,
 
-    login: async (assessmentId, passkey) => {
+    setLoginData: (name, email, aId) => set({ 
+        proctorName: name, 
+        proctorEmail: email, 
+        assessmentId: aId, 
+        isAuthenticated: true 
+    }),
+
+    login: async (assessmentId: string, passkey: string) => {
         try {
             const formData = new FormData();
             formData.append('assessment_id', assessmentId);
             formData.append('passkey', passkey);
 
-            const res = await fetch('http://localhost:8000/proctor/login', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                set({ 
-                    isAuthenticated: true, 
-                    proctorName: data.name,
-                    proctorEmail: data.email,
-                    assessmentId: assessmentId
-                });
+            const response = await axios.post(`${API_BASE_URL}/proctor/login`, formData);
+            if (response.data && response.data.email) {
+                get().setLoginData(response.data.name, response.data.email, assessmentId);
                 return true;
             }
             return false;
         } catch (error) {
-            console.error('Login error:', error);
+            console.error("Login failed:", error);
             return false;
         }
     },
 
-    logout: () => set({ 
-        isAuthenticated: false, 
-        proctorName: '', 
-        proctorEmail: '', 
-        assessmentId: '', 
-        candidates: [],
-        focusedCandidateId: null,
-        selectedCandidateId: null,
-        proctorCameraEnabled: false
-    }),
-
     fetchCandidates: async () => {
-        const { assessmentId, proctorEmail } = get();
+        const { assessmentId, proctorEmail, candidates: existingCandidates } = get();
         if (!assessmentId || !proctorEmail) return;
 
         try {
-            const res = await fetch(`http://localhost:8000/proctor/assigned-candidates?assessment_id=${assessmentId}&proctor_email=${proctorEmail}`);
-            if (res.ok) {
-                const data = await res.json();
-                // Map backend candidate format to store format
-                const mappedCandidates = data.map((c: any, idx: number) => ({
-                    id: c.candidate_id || c.email || `C-${idx}`,
+            const response = await axios.get(`${API_BASE_URL}/proctor/assigned-candidates`, {
+                params: { assessment_id: assessmentId, proctor_email: proctorEmail }
+            });
+
+            const rawCandidates = response.data;
+            const updatedCandidates = await Promise.all(rawCandidates.map(async (c: any) => {
+                const existingCandidate = existingCandidates.find(ec => ec.email === c.email);
+                
+                // Fetch flags for each candidate
+                const flags = await get().fetchCandidateFlags(c.email);
+                
+                // Real-time status logic:
+                // isJoined: If they have a status in enrollment that isn't 'mail not sent' or 'invitation sent'
+                const isJoined = c.status !== "invitation sent to candidate" && c.status !== "mail not sent";
+                
+                return {
+                    id: c.email,
                     name: c.name,
-                    avatarColor: AVATAR_COLORS[idx % AVATAR_COLORS.length]
-                }));
-                set({ candidates: mappedCandidates });
-            }
+                    reg_no: c.reg_no || c.candidate_id || "N/A",
+                    email: c.email,
+                    college: c.college || "N/A",
+                    department: c.Department || c.department || "N/A",
+                    isJoined: isJoined,
+                    // isOnline is combination of Joined + CameraOn for now
+                    isOnline: isJoined && (existingCandidate?.cameraOn || false),
+                    cameraOn: existingCandidate?.cameraOn || false,
+                    flags: flags
+                };
+            }));
+
+            set({ candidates: updatedCandidates });
         } catch (error) {
-            console.error('Fetch candidates error:', error);
+            console.error("Error fetching candidates:", error);
         }
     },
 
-    sendMessage: (text, targetId) => {
+    fetchCandidateFlags: async (email: string) => {
+        const { assessmentId } = get();
+        try {
+            const response = await axios.get(`${API_BASE_URL}/EvidencesLogs/${assessmentId}/${email}/get`);
+            return response.data.map((log: any) => ({
+                timestamp: log.timestamp || new Date().toLocaleString(),
+                type: log.violation_type || "Violation",
+                reason: log.details || "Behavioral anomaly detected"
+            }));
+        } catch (error) {
+            console.error(`Error fetching flags for ${email}:`, error);
+            return [];
+        }
+    },
+
+    updateCandidateStatus: (email, status) => {
+        set((state) => ({
+            candidates: state.candidates.map((c) =>
+                c.email === email ? { ...c, ...status } : c
+            ),
+        }));
+    },
+
+    startPolling: () => {
+        // Stop any existing polling first
+        const currentInterval = get().pollingInterval;
+        if (currentInterval) {
+            clearInterval(currentInterval);
+        }
+
+        // Fetch once immediately
+        get().fetchCandidates();
+
+        const interval = setInterval(() => {
+            get().fetchCandidates();
+        }, 10000); // Poll every 10 seconds for real-time updates
+
+        set({ pollingInterval: interval });
+    },
+
+    stopPolling: () => {
+        const { pollingInterval } = get();
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+            set({ pollingInterval: null });
+        }
+    },
+
+    setFocusedCandidateId: (id) => set({ focusedCandidateId: id }),
+    setSelectedCandidateId: (id) => set({ selectedCandidateId: id }),
+    toggleProctorCamera: () => set((state) => ({ proctorCameraEnabled: !state.proctorCameraEnabled })),
+    
+    sendMessage: (text, candidateId) => {
         const newMessage: ChatMessage = {
-            id: Date.now().toString(),
+            id: Math.random().toString(36).substring(7),
             sender: 'proctor',
             text,
-            timestamp: new Date(),
-            isBroadcast: !targetId,
-            targetCandidateId: targetId
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            candidateId
         };
         set((state) => ({ messages: [...state.messages, newMessage] }));
     },
-
-    setFocusedCandidateId: (id) => set({ focusedCandidateId: id, selectedCandidateId: id || get().selectedCandidateId }),
-    setSelectedCandidateId: (id) => set({ selectedCandidateId: id }),
-    toggleProctorCamera: () => set((state) => ({ proctorCameraEnabled: !state.proctorCameraEnabled })),
 }));
