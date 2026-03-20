@@ -30,7 +30,9 @@ export default function Dashboard() {
         setSelectedCandidateId,
         startPolling,
         stopPolling,
-        assessmentId
+        assessmentId,
+        initRTM,
+        logoutRTM
     } = useProctorStore();
 
     const [chatInput, setChatInput] = useState('');
@@ -90,13 +92,17 @@ export default function Dashboard() {
         setChatInput('');
     };
 
-    // Polling effect
+    // Polling and RTM effect
     useEffect(() => {
         if (isAuthenticated) {
             startPolling();
+            initRTM();
         }
-        return () => stopPolling();
-    }, [isAuthenticated, startPolling, stopPolling]);
+        return () => {
+            stopPolling();
+            logoutRTM();
+        };
+    }, [isAuthenticated, startPolling, stopPolling, initRTM, logoutRTM]);
 
     // Filter candidates for overlays
     const activeCandidates = candidates.filter(c => c.isOnline);

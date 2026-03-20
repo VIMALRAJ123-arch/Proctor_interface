@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import axios from 'axios';
+import AgoraRTM, { RTMClient } from 'agora-rtm';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -41,6 +42,7 @@ interface ProctorState {
     proctorCameraEnabled: boolean;
     messages: ChatMessage[];
     pollingInterval: any | null;
+    rtmClient: RTMClient | null;
 
     setLoginData: (name: string, email: string, aId: string) => void;
     login: (assessmentId: string, passkey: string) => Promise<boolean>;
@@ -53,6 +55,8 @@ interface ProctorState {
     sendMessage: (text: string, candidateId?: string) => void;
     startPolling: () => void;
     stopPolling: () => void;
+    initRTM: () => Promise<void>;
+    logoutRTM: () => Promise<void>;
 }
 
 export const useProctorStore = create<ProctorState>((set, get) => ({
@@ -66,6 +70,7 @@ export const useProctorStore = create<ProctorState>((set, get) => ({
     proctorCameraEnabled: false,
     messages: [],
     pollingInterval: null,
+    rtmClient: null,
 
     setLoginData: (name, email, aId) => set({ 
         proctorName: name, 
@@ -185,7 +190,9 @@ export const useProctorStore = create<ProctorState>((set, get) => ({
     setSelectedCandidateId: (id) => set({ selectedCandidateId: id }),
     toggleProctorCamera: () => set((state) => ({ proctorCameraEnabled: !state.proctorCameraEnabled })),
     
-    sendMessage: (text, candidateId) => {
+    sendMessage: async (text, candidateId) => {
+        const { rtmClient } = get();
+        
         const newMessage: ChatMessage = {
             id: Math.random().toString(36).substring(7),
             sender: 'proctor',
@@ -193,6 +200,70 @@ export const useProctorStore = create<ProctorState>((set, get) => ({
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             candidateId
         };
+        
         set((state) => ({ messages: [...state.messages, newMessage] }));
+
+        if (rtmClient) {
+            try {
+                if (candidateId) {
+                    // Direct message to candidate
+                    await rtmClient.publish(candidateId, text);
+                } else {
+                    // Broadcast to all (could use a common channel)
+                    // For now, let's assume candidates subscribe to a channel named after the assessment
+                    const { assessmentId } = get();
+                    await rtmClient.publish(assessmentId, text);
+                }
+            } catch (err) {
+                console.error("Failed to send RTM message:", err);
+            }
+        }
     },
+
+    initRTM: async () => {
+        const { proctorEmail, assessmentId, rtmClient } = get();
+        if (!proctorEmail || !assessmentId || rtmClient) return;
+
+        try {
+            // Updated AGORA_CONFIG check - assuming it's imported or available
+            const appId = "010d515e3afc45a186f34e299e02d68d"; 
+            const client = new AgoraRTM.RTM(appId, proctorEmail);
+            
+            // Fetch RTM token
+            const response = await axios.get(`${API_BASE_URL}/agora/rtm-token`, {
+                params: { userAccount: proctorEmail }
+            });
+            const { token } = response.data;
+
+            await client.login({ token });
+            
+            // Subscribe to the assessment channel for broadcast messages (not strictly needed for proctor to send, but good for receiving)
+            await client.subscribe(assessmentId);
+
+            // Message listener
+            client.addEventListener('message', (event) => {
+                const msg: ChatMessage = {
+                    id: Math.random().toString(36).substring(7),
+                    sender: 'candidate',
+                    text: event.message.toString(),
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    candidateId: event.publisher // The sender's userAccount
+                };
+                set((state) => ({ messages: [...state.messages, msg] }));
+            });
+
+            set({ rtmClient: client });
+            console.log("RTM initialized for proctor:", proctorEmail);
+        } catch (err) {
+            console.error("RTM Init failed:", err);
+        }
+    },
+
+    logoutRTM: async () => {
+        const { rtmClient } = get();
+        if (rtmClient) {
+            await rtmClient.logout();
+            set({ rtmClient: null });
+        }
+    }
 }));
