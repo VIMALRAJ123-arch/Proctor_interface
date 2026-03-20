@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 import AgoraRTM, { RTMClient } from 'agora-rtm';
+import { AGORA_CONFIG } from '../Config/AgoraConfig';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -225,12 +226,11 @@ export const useProctorStore = create<ProctorState>((set, get) => ({
         if (!proctorEmail || !assessmentId || rtmClient) return;
 
         try {
-            // Updated AGORA_CONFIG check - assuming it's imported or available
-            const appId = "010d515e3afc45a186f34e299e02d68d"; 
+            const appId = AGORA_CONFIG.appId; 
             const client = new AgoraRTM.RTM(appId, proctorEmail);
             
             // Fetch RTM token
-            const response = await axios.get(`${API_BASE_URL}/agora/rtm-token`, {
+            const response = await axios.get(`${AGORA_CONFIG.tokenUrl.replace('/token', '/rtm-token')}`, {
                 params: { userAccount: proctorEmail }
             });
             const { token } = response.data;
