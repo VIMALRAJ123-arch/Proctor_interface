@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useProctorStore } from '../store/proctorStore';
 import NavBar from '../Components/NavBar';
 import CandidateGrid from '../Components/CandidateGrid';
+import AgoraVideoPlayer from '../Components/AgoraVideoPlayer';
 import { 
     Monitor,
     Smartphone, 
@@ -175,26 +176,14 @@ export default function Dashboard() {
                                 </div>
 
                                 {/* Focused Feeds */}
-                                <div className="flex-1 grid grid-cols-2 gap-6 min-h-0">
-                                    <div className="aspect-video bg-[#1E293B] rounded-[2rem] border border-slate-800/50 relative overflow-hidden flex items-center justify-center">
-                                        <div className="absolute top-4 left-6 flex items-center gap-2 bg-[#0F172A]/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800">
-                                            <Monitor size={14} className="text-indigo-400" />
-                                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Front Camera</span>
-                                        </div>
-                                        <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border-2 border-slate-800 animate-pulse">
-                                            <VideoOff size={32} className="text-slate-700" />
-                                        </div>
-                                    </div>
-                                    <div className="aspect-video bg-[#1E293B] rounded-[2rem] border border-slate-800/50 relative overflow-hidden flex items-center justify-center">
-                                        <div className="absolute top-4 left-6 flex items-center gap-2 bg-[#0F172A]/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800">
-                                            <Smartphone size={14} className="text-indigo-400" />
-                                            <span className="text-[10px] font-black text-white uppercase tracking-widest">Side Camera</span>
-                                        </div>
-                                        <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border-2 border-slate-800 animate-pulse">
-                                            <VideoOff size={32} className="text-slate-700" />
-                                        </div>
-                                    </div>
-                                </div>
+                                {focusedCandidate && (
+                                    <AgoraVideoPlayer 
+                                        assessmentId={useProctorStore.getState().assessmentId}
+                                        candidateId={focusedCandidate.id}
+                                        layout="focused"
+                                        viewMode={viewMode}
+                                    />
+                                )}
                             </div>
                         ) : (
                             <CandidateGrid viewMode={viewMode} />
