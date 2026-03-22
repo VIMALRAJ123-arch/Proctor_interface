@@ -9,7 +9,7 @@ const NavBar = () => {
             <div className="flex items-center justify-between">
                 {/* Brand Logo & Name */}
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center overflow-hidden border-2 border-border-subtle">
+                    <div className="w-10 h-10 bg-white rounded-md shadow-lg flex items-center justify-center overflow-hidden border-2 border-border-subtle">
                         <img 
                             src="https://pbs.twimg.com/profile_images/1973372506271584256/Sb4wfgD0_400x400.jpg" 
                             alt="Virtusa" 
@@ -26,17 +26,17 @@ const NavBar = () => {
                 {/* Right Side Info & Badges */}
                 <div className="flex items-center gap-6">
                     {/* Theme Switcher */}
-                    <div className="flex items-center gap-2 bg-brand p-1 rounded-lg border border-border-subtle shadow-sm">
+                    <div className="flex items-center gap-2 bg-brand p-1 rounded-md border border-border-subtle shadow-sm">
                         <button 
                             onClick={() => setTheme('blue')}
-                            className={`p-1.5 rounded-md transition-all ${theme === 'blue' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary hover:bg-accent-main/10'}`}
+                            className={`p-1.5 rounded-none transition-all ${theme === 'blue' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary hover:bg-accent-main/10'}`}
                             title="Blue Theme"
                         >
                             <Palette size={14} />
                         </button>
                         <button 
                             onClick={() => setTheme('black')}
-                            className={`p-1.5 rounded-md transition-all ${theme === 'black' ? 'bg-status-offline text-white border border-border-subtle shadow-lg' : 'text-text-secondary hover:text-text-primary hover:bg-status-offline/10'}`}
+                            className={`p-1.5 rounded-none transition-all ${theme === 'black' ? 'bg-status-offline text-white border border-border-subtle shadow-lg' : 'text-text-secondary hover:text-text-primary hover:bg-status-offline/10'}`}
                             title="Black Theme"
                         >
                             <Moon size={14} />
@@ -58,7 +58,7 @@ const NavBar = () => {
                         </div>
                         <button 
                             onClick={logout}
-                            className="flex items-center gap-2 bg-surface hover:bg-surface/80 text-text-primary px-3 py-1.5 rounded-lg border border-border-subtle transition-all text-[10px] font-black uppercase tracking-widest active:scale-95"
+                            className="flex items-center gap-2 bg-surface hover:bg-surface/80 text-text-primary px-3 py-1.5 rounded-md border border-border-subtle transition-all text-[10px] font-black uppercase tracking-widest active:scale-95"
                         >
                             End Session
                             <LogOut size={12} className="text-text-secondary" />

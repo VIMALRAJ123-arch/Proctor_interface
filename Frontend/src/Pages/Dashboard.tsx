@@ -116,7 +116,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-8">
                             <h2 className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Session Overview</h2>
                             <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-brand/50 rounded-lg border border-border-subtle">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-brand/50 rounded-md border border-border-subtle">
                                     <span className="text-[10px] font-bold text-text-secondary uppercase">Total</span>
                                     <span className="text-sm font-black text-text-primary">{candidates.length}</span>
                                 </div>
@@ -124,9 +124,9 @@ export default function Dashboard() {
                                 {/* Active Button */}
                                 <button
                                     onClick={() => setOverlayType('active')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-status-active/5 hover:bg-status-active/10 rounded-lg border border-status-active/20 transition-all group"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-status-active/5 hover:bg-status-active/10 rounded-md border border-status-active/20 transition-all group"
                                 >
-                                    <div className="w-1.5 h-1.5 rounded-full bg-status-active shadow-[0_0_8px_var(--color-status-active)] group-hover:scale-125 transition-transform" />
+                                    <div className="w-1.5 h-1.5 rounded-sm bg-status-active shadow-[0_0_8px_var(--color-status-active)] group-hover:scale-125 transition-transform" />
                                     <span className="text-[10px] font-bold text-text-secondary uppercase">Active</span>
                                     <span className="text-sm font-black text-status-active">{activeCandidates.length}</span>
                                 </button>
@@ -134,7 +134,7 @@ export default function Dashboard() {
                                 {/* Offline Button */}
                                 <button
                                     onClick={() => setOverlayType('offline')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-status-offline/5 hover:bg-status-offline/10 rounded-lg border border-status-offline/20 transition-all group"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-status-offline/5 hover:bg-status-offline/10 rounded-none border border-status-offline/20 transition-all group"
                                 >
                                     <UserX size={12} className="text-status-offline group-hover:scale-110 transition-transform" />
                                     <span className="text-[10px] font-bold text-text-secondary uppercase">Offline</span>
@@ -144,7 +144,7 @@ export default function Dashboard() {
                                 {/* Joined Button */}
                                 <button
                                     onClick={() => setOverlayType('joined')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-accent-main/5 hover:bg-accent-main/10 rounded-lg border border-accent-main/20 transition-all group"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-accent-main/5 hover:bg-accent-main/10 rounded-none border border-accent-main/20 transition-all group"
                                 >
                                     <UserCheck size={12} className="text-accent-main group-hover:scale-110 transition-transform" />
                                     <span className="text-[10px] font-bold text-text-secondary uppercase">Joined</span>
@@ -154,7 +154,7 @@ export default function Dashboard() {
                                 {/* Yet to Join Button */}
                                 <button
                                     onClick={() => setOverlayType('yet_to_join')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-status-warning/5 hover:bg-status-warning/10 rounded-lg border border-status-warning/20 transition-all group"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-status-warning/5 hover:bg-status-warning/10 rounded-none border border-status-warning/20 transition-all group"
                                 >
                                     <Clock size={12} className="text-status-warning group-hover:scale-110 transition-transform" />
                                     <span className="text-[10px] font-bold text-text-secondary uppercase">Yet to Join</span>
@@ -166,22 +166,22 @@ export default function Dashboard() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <div className="flex bg-brand rounded-xl p-1 border border-border-subtle">
+                            <div className="flex bg-brand rounded-md p-1 border border-border-subtle">
                                 <button
                                     onClick={() => setViewMode('front')}
-                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${viewMode === 'front' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary'}`}
+                                    className={`px-3 py-1.5 rounded-none text-[10px] font-black uppercase transition-all ${viewMode === 'front' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary'}`}
                                 >
                                     Front
                                 </button>
                                 <button
                                     onClick={() => setViewMode('side')}
-                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${viewMode === 'side' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary'}`}
+                                    className={`px-3 py-1.5 rounded-none text-[10px] font-black uppercase transition-all ${viewMode === 'side' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary'}`}
                                 >
                                     Side
                                 </button>
                                 <button
                                     onClick={() => setViewMode('both')}
-                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all ${viewMode === 'both' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary'}`}
+                                    className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase transition-all ${viewMode === 'both' ? 'bg-accent-main text-white shadow-lg' : 'text-text-secondary hover:text-text-primary'}`}
                                 >
                                     Both
                                 </button>
@@ -202,27 +202,27 @@ export default function Dashboard() {
                 <aside className="w-[400px] flex flex-col bg-surface backdrop-blur-xl border-l border-border-subtle">
                     {/* Proctor Self View */}
                     <div className="p-6 border-b border-border-subtle">
-                        <div className="aspect-video bg-brand rounded-[2rem] border border-border-subtle overflow-hidden relative group shadow-2xl">
+                        <div className="aspect-video bg-brand rounded-lg border border-border-subtle overflow-hidden relative group shadow-2xl">
                             <div
                                 ref={videoRef}
                                 className={`w-full h-full object-cover transition-opacity duration-500 overflow-hidden ${proctorCameraEnabled ? 'opacity-100' : 'opacity-0'}`}
                             />
                             {!proctorCameraEnabled && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-surface/50 flex items-center justify-center text-text-secondary">
+                                    <div className="w-12 h-12 rounded-md bg-surface/50 flex items-center justify-center text-text-secondary">
                                         <VideoOff size={24} />
                                     </div>
                                     <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Camera Offline</span>
                                 </div>
                             )}
                             <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                                <div className="flex items-center gap-2 px-3 py-1 bg-surface/80 backdrop-blur-md rounded-lg border border-border-subtle">
-                                    <div className={`w-1.5 h-1.5 rounded-full ${proctorCameraEnabled ? 'bg-emerald-500' : 'bg-text-secondary'}`} />
+                                <div className="flex items-center gap-2 px-3 py-1 bg-surface/80 backdrop-blur-md rounded-md border border-border-subtle">
+                                    <div className={`w-1.5 h-1.5 rounded-sm ${proctorCameraEnabled ? 'bg-emerald-500' : 'bg-text-secondary'}`} />
                                     <span className="text-[9px] font-black text-text-primary uppercase tracking-tight">Proctor View</span>
                                 </div>
                                 <button
                                     onClick={toggleProctorCamera}
-                                    className={`p-2 rounded-lg backdrop-blur-md border transition-all ${proctorCameraEnabled ? 'bg-rose-500/20 border-rose-500/50 text-rose-500' : 'bg-accent-main/20 border-accent-main/50 text-accent-main'}`}
+                                    className={`p-2 rounded-md backdrop-blur-md border transition-all ${proctorCameraEnabled ? 'bg-rose-500/20 border-rose-500/50 text-rose-500' : 'bg-accent-main/20 border-accent-main/50 text-accent-main'}`}
                                 >
                                     {proctorCameraEnabled ? <VideoOff size={14} /> : <Video size={14} />}
                                 </button>
@@ -236,7 +236,7 @@ export default function Dashboard() {
                             <div>
                                 <h3 className="text-xs font-black text-text-primary uppercase tracking-tight">Communication</h3>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <div className={`w-1 h-1 rounded-full ${rtmStatus === 'connected' ? 'bg-status-active shadow-[0_0_8px_var(--color-status-active)]' :
+                                    <div className={`w-1 h-1 rounded-sm ${rtmStatus === 'connected' ? 'bg-status-active shadow-[0_0_8px_var(--color-status-active)]' :
                                             rtmStatus === 'connecting' ? 'bg-status-warning animate-pulse' :
                                                 rtmStatus === 'error' ? 'bg-status-offline' : 'bg-surface'
                                         }`} />
@@ -252,7 +252,7 @@ export default function Dashboard() {
                             <select
                                 value={selectedCandidateId || 'broadcast'}
                                 onChange={(e) => setSelectedCandidateId(e.target.value === 'broadcast' ? null : e.target.value)}
-                                className="bg-brand border border-border-subtle text-[10px] font-black text-text-secondary px-3 py-1.5 rounded-lg outline-none focus:border-accent-main transition-colors uppercase"
+                                className="bg-brand border border-border-subtle text-[10px] font-black text-text-secondary px-3 py-1.5 rounded-md outline-none focus:border-accent-main transition-colors uppercase"
                             >
                                 <option value="broadcast">Broadcast to All</option>
                                 {candidates.map(c => (
@@ -270,8 +270,8 @@ export default function Dashboard() {
                                         <span className="text-[9px] font-bold text-text-secondary opacity-60">{msg.timestamp}</span>
                                     </div>
                                     <div className={`max-w-[85%] p-3 text-xs font-medium leading-relaxed ${msg.sender === 'proctor'
-                                            ? 'bg-accent-main text-white rounded-2xl rounded-tr-none shadow-lg'
-                                            : 'bg-surface border border-border-subtle text-text-primary rounded-2xl rounded-tl-none'
+                                            ? 'bg-accent-main text-white rounded-md shadow-lg'
+                                            : 'bg-surface border border-border-subtle text-text-primary rounded-md'
                                         }`}>
                                         {msg.text}
                                     </div>
@@ -287,11 +287,11 @@ export default function Dashboard() {
                                     value={chatInput}
                                     onChange={(e) => setChatInput(e.target.value)}
                                     placeholder={selectedCandidateId ? `Message ${selectedCandidate?.name}...` : "Broadcast to all candidates..."}
-                                    className="w-full bg-brand border border-border-subtle text-xs text-text-primary px-5 py-4 rounded-2xl outline-none focus:border-accent-main/50 transition-all pr-14 placeholder:text-text-secondary/50 group-hover:border-border-subtle/80 shadow-inner"
+                                    className="w-full bg-brand border border-border-subtle text-xs text-text-primary px-5 py-4 rounded-md outline-none focus:border-accent-main/50 transition-all pr-14 placeholder:text-text-secondary/50 group-hover:border-border-subtle/80 shadow-inner"
                                 />
                                 <button
                                     type="submit"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-accent-main text-white rounded-xl flex items-center justify-center hover:bg-accent-main/80 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-accent-main/20"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-accent-main text-white rounded-md flex items-center justify-center hover:bg-accent-main/80 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-accent-main/20"
                                 >
                                     <Send size={16} />
                                 </button>

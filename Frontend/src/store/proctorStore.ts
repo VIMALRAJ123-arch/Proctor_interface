@@ -10,6 +10,8 @@ export interface CandidateFlag {
     timestamp: string;
     type: string;
     reason: string;
+    webcam_url?: string;
+    mobile_url?: string;
 }
 
 export interface Candidate {
@@ -171,11 +173,19 @@ export const useProctorStore = create<ProctorState>((set, get) => ({
         const { assessmentId } = get();
         try {
             const response = await axios.get(`${API_BASE_URL}/EvidencesLogs/${assessmentId}/${email}/get`);
-            return response.data.map((log: any) => ({
-                timestamp: log.timestamp || new Date().toLocaleString(),
-                type: log.violation_type || "Violation",
-                reason: log.details || "Behavioral anomaly detected"
-            }));
+            const rawLogs = response.data;
+            const flags: CandidateFlag[] = rawLogs.map((log: any) => {
+                const timestamp = log.timestamp || Date.now() / 1000;
+                return {
+                    timestamp: log.time || new Date(timestamp * 1000).toLocaleString(),
+                    type: log.violation_type || log.type || "Violation",
+                    reason: log.details || "Behavioral anomaly detected",
+                    webcam_url: (log.camera_type === 'laptop' || !log.camera_type) ? (log.cloud_url || log.webcam_url) : undefined,
+                    mobile_url: (log.camera_type === 'mobile') ? log.cloud_url : undefined
+                };
+            });
+
+            return flags.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
         } catch (error) {
             console.error(`Error fetching flags for ${email}:`, error);
             return [];

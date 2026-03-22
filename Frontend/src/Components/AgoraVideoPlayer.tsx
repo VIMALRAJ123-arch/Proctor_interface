@@ -37,27 +37,47 @@ export default function AgoraVideoPlayer({
             setClient(rtcClient);
 
             rtcClient.on('user-published', async (user, mediaType) => {
-                console.log(`User published: ${user.uid}, MediaType: ${mediaType} in channel: ${channelName}`);
+                console.log(`[AGORA] User published: ${user.uid}, MediaType: ${mediaType} in channel: ${channelName}`);
                 await rtcClient!.subscribe(user, mediaType);
+                
                 if (mediaType === 'video') {
                     const remoteVideoTrack = user.videoTrack!;
-                    if (user.uid == 1) { // Laptop/Front
-                        console.log(`Setting Front track for UID 1`);
-                        setFrontTrack(remoteVideoTrack);
-                    } else if (user.uid == 2) { // Mobile/Side
-                        console.log(`Setting Side track for UID 2`);
-                        setSideTrack(remoteVideoTrack);
-                    } else {
-                        console.log(`Received unknown UID: ${user.uid}. Defaulting to Front track.`);
-                        setFrontTrack(remoteVideoTrack);
-                    }
+                    const uid = Number(user.uid);
+                    
+                    // Flexible mapping logic:
+                    // 1. If UID is 1, it's definitely Laptop (Front).
+                    // 2. If UID is 2, it's definitely Mobile (Side).
+                    // 3. For any other UID, we assign to whichever slot is currently empty.
+                    
+                    setFrontTrack(prev => {
+                        if (uid === 1) return remoteVideoTrack;
+                        // Avoid overwriting a valid UID 1 with a random UID
+                        if (uid !== 2 && !prev) return remoteVideoTrack;
+                        return prev;
+                    });
+
+                    setSideTrack(prev => {
+                        if (uid === 2) return remoteVideoTrack;
+                        // For random UIDs, if Front is taken and Side is empty, take Side
+                        // Or if this is the only stream available besides Front
+                        if (uid !== 1 && !prev) return remoteVideoTrack;
+                        return prev;
+                    });
+
+                    console.log(`[AGORA] Processed UID ${uid}. Track assigned based on availability.`);
                 }
             });
 
             rtcClient.on('user-unpublished', (user, mediaType) => {
                 if (mediaType === 'video') {
-                    if (user.uid == 1) setFrontTrack(null);
-                    if (user.uid == 2) setSideTrack(null);
+                    const uid = Number(user.uid);
+                    if (uid === 1) setFrontTrack(null);
+                    else if (uid === 2) setSideTrack(null);
+                    else {
+                        // For other UIDs, clear tracks as they go offline
+                        setFrontTrack(prev => (prev && uid !== 2) ? null : prev);
+                        setSideTrack(prev => (prev && uid !== 1) ? null : prev);
+                    }
                 }
             });
 
@@ -111,12 +131,12 @@ export default function AgoraVideoPlayer({
         <div className="flex flex-col items-center gap-2 opacity-40">
             {isLoading ? (
                 <div className="flex flex-col items-center gap-2">
-                    <div className="w-8 h-8 border-2 border-accent-main/30 border-t-accent-main rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-2 border-accent-main/30 border-t-accent-main rounded-md animate-spin" />
                     <span className="text-[8px] font-black text-text-secondary uppercase tracking-widest">Joining...</span>
                 </div>
             ) : (
                 <>
-                    <div className="w-12 h-12 bg-surface rounded-full flex items-center justify-center border-2 border-border-subtle animate-pulse">
+                    <div className="w-12 h-12 bg-surface rounded-md flex items-center justify-center border-2 border-border-subtle animate-pulse">
                         <VideoOff size={20} className="text-text-secondary" />
                     </div>
                     <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">{type} Offline</span>
@@ -132,9 +152,9 @@ export default function AgoraVideoPlayer({
         return (
             <div className={`grid ${showFront && showSide ? 'grid-cols-2' : 'grid-cols-1'} gap-4 w-full`}>
                 {showFront && (
-                    <div className="aspect-video bg-surface/50 rounded-2xl border border-border-subtle relative overflow-hidden flex items-center justify-center shadow-2xl group/video">
+                    <div className="aspect-video bg-surface/50 rounded-lg border border-border-subtle relative overflow-hidden flex items-center justify-center shadow-2xl group/video">
                         {showLabels && (
-                            <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-brand/80 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-border-subtle">
+                            <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-brand/80 backdrop-blur-md px-2.5 py-1.5 rounded-md border border-border-subtle">
                                 <Monitor size={12} className="text-accent-main" />
                                 <span className="text-[9px] font-black text-text-primary uppercase tracking-widest">Front</span>
                             </div>
@@ -148,9 +168,9 @@ export default function AgoraVideoPlayer({
                     </div>
                 )}
                 {showSide && (
-                    <div className="aspect-video bg-surface/50 rounded-2xl border border-border-subtle relative overflow-hidden flex items-center justify-center shadow-2xl group/video">
+                    <div className="aspect-video bg-surface/50 rounded-none border border-border-subtle relative overflow-hidden flex items-center justify-center shadow-2xl group/video">
                         {showLabels && (
-                            <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-brand/80 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-border-subtle">
+                            <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-brand/80 backdrop-blur-md px-2.5 py-1.5 rounded-none border border-border-subtle">
                                 <Smartphone size={12} className="text-accent-main" />
                                 <span className="text-[9px] font-black text-text-primary uppercase tracking-widest">Side</span>
                             </div>
@@ -191,7 +211,7 @@ export default function AgoraVideoPlayer({
             {showSide && (
                 <div className="flex-1 bg-brand/50 relative flex items-center justify-center border-l border-border-subtle/30 group-hover:bg-brand/70 transition-colors overflow-hidden">
                     {showLabels && (
-                        <div className="absolute top-3 left-4 z-10 flex items-center gap-1.5 bg-brand/80 backdrop-blur-md px-2 py-1 rounded-md border border-border-subtle/50">
+                        <div className="absolute top-3 left-4 z-10 flex items-center gap-1.5 bg-brand/80 backdrop-blur-md px-2 py-1 rounded-none border border-border-subtle/50">
                             <Smartphone size={10} className="text-accent-main" />
                             <span className="text-[8px] font-black text-text-primary uppercase tracking-widest">Side</span>
                         </div>

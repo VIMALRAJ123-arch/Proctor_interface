@@ -36,7 +36,7 @@ export default function Login() {
             >
                 {/* Brand Logo & Name */}
                 <div className="mb-12 flex items-center gap-4">
-                    <div className="w-20 h-20 bg-surface rounded-[1.8rem] flex items-center justify-center shadow-2xl border border-border-subtle overflow-hidden">
+                    <div className="w-20 h-20 bg-surface rounded-md flex items-center justify-center shadow-2xl border border-border-subtle overflow-hidden">
                         <img 
                             src="https://pbs.twimg.com/profile_images/1973372506271584256/Sb4wfgD0_400x400.jpg" 
                             alt="Virtusa" 
@@ -47,7 +47,7 @@ export default function Login() {
                 </div>
 
                 {/* Login Card */}
-                <div className="w-full bg-surface rounded-[2.5rem] shadow-2xl border border-border-subtle p-12">
+                <div className="w-full bg-surface rounded-lg shadow-2xl border border-border-subtle p-12">
                     <div className="text-center mb-10">
                         <h1 className="text-3xl font-bold text-text-primary tracking-tight mb-2">Proctor Login</h1>
                         <p className="text-text-secondary text-[13px] font-medium">Enter your credentials to start monitoring</p>
@@ -58,7 +58,7 @@ export default function Login() {
                             <motion.div 
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="p-4 bg-status-offline/10 border border-status-offline/20 rounded-2xl flex items-start gap-3"
+                                className="p-4 bg-status-offline/10 border border-status-offline/20 rounded-md flex items-start gap-3"
                             >
                                 <AlertCircle className="text-status-offline shrink-0" size={18} />
                                 <p className="text-status-offline text-xs font-bold leading-relaxed">{error}</p>
@@ -74,7 +74,7 @@ export default function Login() {
                                     value={assessmentId}
                                     onChange={(e) => setAssessmentId(e.target.value)}
                                     placeholder="Enter Assessment ID"
-                                    className="w-full bg-brand/50 border border-border-subtle focus:border-accent focus:bg-surface focus:ring-4 focus:ring-accent/5 rounded-2xl py-4 px-6 text-text-primary text-sm font-bold outline-none transition-all placeholder:text-text-secondary/50"
+                                    className="w-full bg-brand/50 border border-border-subtle focus:border-accent focus:bg-surface focus:ring-4 focus:ring-accent/5 rounded-md py-4 px-6 text-text-primary text-sm font-bold outline-none transition-all placeholder:text-text-secondary/50"
                                 />
                             </div>
                         </div>
@@ -88,7 +88,7 @@ export default function Login() {
                                     value={passkey}
                                     onChange={(e) => setPasskey(e.target.value.toUpperCase().trim())}
                                     placeholder="8-character passkey"
-                                    className="w-full bg-brand/50 border border-border-subtle focus:border-accent focus:bg-surface focus:ring-4 focus:ring-accent/5 rounded-2xl py-4 px-6 text-text-primary text-sm font-bold outline-none transition-all placeholder:text-text-secondary/50 uppercase"
+                                    className="w-full bg-brand/50 border border-border-subtle focus:border-accent focus:bg-surface focus:ring-4 focus:ring-accent/5 rounded-md py-4 px-6 text-text-primary text-sm font-bold outline-none transition-all placeholder:text-text-secondary/50 uppercase"
                                 />
                             </div>
                         </div>
@@ -96,7 +96,7 @@ export default function Login() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-accent hover:bg-accent/80 text-white py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
+                            className="w-full bg-accent hover:bg-accent/80 text-white py-5 rounded-md text-[12px] font-black uppercase tracking-[0.2em] shadow-xl transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 mt-4"
                         >
                             {loading ? 'Verifying...' : (
                                 <>

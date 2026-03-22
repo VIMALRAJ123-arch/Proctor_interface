@@ -22,9 +22,9 @@ export default function CandidateFullScreenOverlay({
             
             <div className="w-full h-full max-w-7xl flex flex-col gap-6 relative z-10 animate-in zoom-in-95 duration-300">
                 {/* Header Overlay */}
-                <div className="flex items-center justify-between bg-surface/50 backdrop-blur-xl border border-border-subtle p-6 rounded-[2.5rem] shadow-2xl">
+                <div className="flex items-center justify-between bg-surface/50 backdrop-blur-xl border border-border-subtle p-6 rounded-lg shadow-2xl">
                     <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 bg-accent-main rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-accent-main/20">
+                        <div className="w-14 h-14 bg-accent-main rounded-md flex items-center justify-center font-black text-white text-xl shadow-lg shadow-accent-main/20">
                             {candidate.name.charAt(0)}
                         </div>
                         <div>
@@ -37,14 +37,14 @@ export default function CandidateFullScreenOverlay({
                     </div>
                     <button 
                         onClick={onClose}
-                        className="w-12 h-12 bg-surface hover:bg-brand rounded-2xl flex items-center justify-center text-text-secondary hover:text-text-primary transition-all hover:rotate-90 shadow-xl border border-border-subtle"
+                        className="w-12 h-12 bg-surface hover:bg-brand rounded-md flex items-center justify-center text-text-secondary hover:text-text-primary transition-all hover:rotate-90 shadow-xl border border-border-subtle"
                     >
                         <X size={24} />
                     </button>
                 </div>
 
                 {/* Video Container */}
-                <div className="flex-1 bg-brand/50 rounded-[3rem] border border-border-subtle overflow-hidden shadow-2xl relative group">
+                <div className="flex-1 bg-brand/50 rounded-lg border border-border-subtle overflow-hidden shadow-2xl relative group">
                     <div className="absolute inset-0 flex items-center justify-center p-8">
                         <AgoraVideoPlayer 
                             assessmentId={assessmentId} 
@@ -56,8 +56,8 @@ export default function CandidateFullScreenOverlay({
                     </div>
                     
                     {/* Status Badge */}
-                    <div className="absolute bottom-8 left-8 flex items-center gap-3 px-4 py-2 bg-surface/80 backdrop-blur-xl border border-border-subtle rounded-2xl shadow-2xl">
-                        <div className={`w-3 h-3 rounded-full ${candidate.cameraOn ? 'bg-status-active shadow-[0_0_12px_var(--color-status-active)]' : 'bg-text-secondary'} animate-pulse`} />
+                    <div className="absolute bottom-8 left-8 flex items-center gap-3 px-4 py-2 bg-surface/80 backdrop-blur-xl border border-border-subtle rounded-md shadow-2xl">
+                        <div className={`w-3 h-3 rounded-sm ${candidate.cameraOn ? 'bg-status-active shadow-[0_0_12px_var(--color-status-active)]' : 'bg-text-secondary'} animate-pulse`} />
                         <span className="text-xs font-black text-text-primary uppercase tracking-widest">
                             {candidate.cameraOn ? 'Live Stream Active' : 'Camera Offline'}
                         </span>
